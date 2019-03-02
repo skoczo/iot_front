@@ -5,9 +5,8 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
-import Axios from 'axios'
+import Axios from '../../axiosConfig/axiosInstance.js'
 
 class AddGroupDialog extends Component {
     state = {
@@ -17,7 +16,7 @@ class AddGroupDialog extends Component {
     addGroup = () => {
         console.log('addGroup: ' + this.state.group);
 
-        Axios.post('http://localhost:8443/group/' + this.state.group)
+        Axios.post('/group/' + this.state.group)
             .catch( (error) => {
                 console.log(error);
             })

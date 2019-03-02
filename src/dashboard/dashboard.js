@@ -4,17 +4,24 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import SettingsIcon from '@material-ui/icons/Settings';
 import SimpleLineChart from './SimpleLineChart';
 import SimpleTable from './SimpleTable';
 import AddGroupDialog from './addGroupDialog/addGroupDialog.js'
 import CustomDrawer from './drawer/customDrawer'
-import axios from 'axios';
+import SetSensorNameDialog from './sensorManagement/setSensorName/setSensorName.js'
+import AssignSensorToGroup from './sensorManagement/assignSensorToGroup/assignSensorToGroup.js'
+import axios from '../axiosConfig/axiosInstance.js';
+import SensorChart from './charts/sensorChart/sensorChart.js'
+import Grid from '@material-ui/core/Grid';
 
 const drawerWidth = 240;
 
@@ -67,9 +74,13 @@ const styles = theme => ({
 
 class Dashboard extends React.Component {
   state = {
+    setSensorName: false,
     open: true,
     openGropAddDialog: false,
-    groups: []
+    assignSensorToGroupDialog: false,
+    groups: [],
+    anchorEl: null,
+    selectedGroup: null
   };
 
   componentDidMount() {
@@ -77,18 +88,26 @@ class Dashboard extends React.Component {
   }
 
   handleRefreshGroups() {
-    axios.get('http://localhost:8443/groups')
+    axios.get('/groups')
       .then(response => {
         console.log('refreshGroups')
-        var groupNames = [];
-        for (var e in response.data) {
-          console.log(response.data[e].name);
-          groupNames.push(response.data[e].name);
+        console.log(response.data)
+        if (this.state.selectedGroup === null) {
+          this.setState({ groups: response.data, selectedGroup: response.data[0] });
+        } else {
+          this.setState({ groups: response.data });
         }
-        console.log(groupNames)
-        this.setState({ groups: groupNames });
+        // this.setState({ groups: response.data, selectedGroup: response.data[0] });
       });
   }
+
+  handleOpenSettingsMenu = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
+
+  handleCloseSettingsMenu = () => {
+    this.setState({ anchorEl: null });
+  };
 
   handleDrawerOpen = () => {
     this.setState({ open: true });
@@ -98,13 +117,40 @@ class Dashboard extends React.Component {
     this.setState({ open: false });
   };
 
-  handleClickOpenCloseGroupAddDialog = (state) => {
+  handleOpenCloseSetSensorNameDialog = (state) => {
+    this.setState({ setSensorName: state });
+    if (state) {
+      this.handleCloseSettingsMenu()
+    }
+  };
 
+  handleOpenCloseAssignSensorToGroupDialog = (state) => {
+    this.setState({ assignSensorToGroupDialog: state });
+    if (state) {
+      this.handleCloseSettingsMenu()
+    }
+  }
+
+  handleClickOpenCloseGroupAddDialog = (state) => {
     this.setState({ openGropAddDialog: state });
   };
 
   render() {
     const { classes } = this.props;
+    const { anchorEl } = this.state;
+
+    let sensors = []
+    console.log(this.state.selectedGroup)
+    if (this.state.selectedGroup) {
+      console.log(this.state.selectedGroup.sensors)
+      this.state.selectedGroup.sensors.forEach(element => {
+        sensors.push(
+          <Grid item xs={3}>
+            <SensorChart value={element} />
+          </Grid>);
+      });
+    }
+
     console.log(this.listItems);
 
     return (
@@ -135,19 +181,34 @@ class Dashboard extends React.Component {
             >
               IOT Skoczo
             </Typography>
-            <IconButton color="inherit">
+            {/* <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
+            </IconButton> */}
+            <IconButton color="inherit" onClick={this.handleOpenSettingsMenu}>
+              <SettingsIcon />
             </IconButton>
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={this.handleCloseSettingsMenu}>
+              <MenuItem onClick={event => this.handleOpenCloseAssignSensorToGroupDialog(true)}>Przypisz czujnik do grupy</MenuItem>
+              <MenuItem onClick={event => this.handleOpenCloseSetSensorNameDialog(true)}>Ustaw nazwę czujnika</MenuItem>
+            </Menu>
           </Toolbar>
         </AppBar>
-        <CustomDrawer open={this.state.open} 
+        <CustomDrawer open={this.state.open}
           groups={this.state.groups}
           drawerClose={this.handleDrawerClose}
           openAddGroupDialog={event => this.handleClickOpenCloseGroupAddDialog(true)} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
+          <Grid container spacing={24}>
+            {sensors}
+          </Grid>
+
           {/* <Typography variant="h4" gutterBottom component="h2">
             Orders
           </Typography>
@@ -158,13 +219,19 @@ class Dashboard extends React.Component {
             Products
           </Typography>
           <div className={classes.tableContainer}>
-            <SimpleTable />
-          </div> */}
+            <SimpleTable /> */}
+          {/* </div> */}
         </main>
         <AddGroupDialog
           open={this.state.openGropAddDialog}
           handleClose={event => this.handleClickOpenCloseGroupAddDialog(false)}
           refreshGroups={event => this.handleRefreshGroups()} />
+        <SetSensorNameDialog
+          open={this.state.setSensorName}
+          handleClose={event => this.handleOpenCloseSetSensorNameDialog(false)} />
+        <AssignSensorToGroup
+          open={this.state.assignSensorToGroupDialog}
+          handleClose={event => this.handleOpenCloseAssignSensorToGroupDialog(false)} />
       </div>
     );
   }
