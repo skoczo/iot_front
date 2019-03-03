@@ -64,7 +64,7 @@ class IOTDrawer extends Component {
           </IconButton>
         </div>
         <Divider />
-        <List><Groups groups={this.props.groups} /></List>
+        <List><Groups groups={this.props.groups} changeGroup={this.props.changeGroup}/></List>
         <Divider />
         <List><ListItem button onClick={this.props.openAddGroupDialog}>
           <ListItemIcon>

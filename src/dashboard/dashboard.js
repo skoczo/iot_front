@@ -9,18 +9,15 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
 import MenuIcon from '@material-ui/icons/Menu';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import SettingsIcon from '@material-ui/icons/Settings';
-import SimpleLineChart from './SimpleLineChart';
-import SimpleTable from './SimpleTable';
 import AddGroupDialog from './addGroupDialog/addGroupDialog.js'
 import CustomDrawer from './drawer/customDrawer'
 import SetSensorNameDialog from './sensorManagement/setSensorName/setSensorName.js'
 import AssignSensorToGroup from './sensorManagement/assignSensorToGroup/assignSensorToGroup.js'
 import axios from '../axiosConfig/axiosInstance.js';
 import SensorChart from './charts/sensorChart/sensorChart.js'
+import EmptyChart from './charts/emptyChart/emptyChart.js'
 import Grid from '@material-ui/core/Grid';
 
 const drawerWidth = 240;
@@ -92,12 +89,7 @@ class Dashboard extends React.Component {
       .then(response => {
         console.log('refreshGroups')
         console.log(response.data)
-        if (this.state.selectedGroup === null) {
-          this.setState({ groups: response.data, selectedGroup: response.data[0] });
-        } else {
-          this.setState({ groups: response.data });
-        }
-        // this.setState({ groups: response.data, selectedGroup: response.data[0] });
+        this.setState({ groups: response.data, selectedGroup: response.data[0] });
       });
   }
 
@@ -117,8 +109,20 @@ class Dashboard extends React.Component {
     this.setState({ open: false });
   };
 
+  handleChangeGroup = (groupId) => {
+    console.log(groupId)
+
+    this.state.groups.forEach(group => {
+      if(group.id === groupId) {
+        console.log('group found')
+        this.setState({ selectedGroup: group });
+      }
+    });
+  }
+
   handleOpenCloseSetSensorNameDialog = (state) => {
     this.setState({ setSensorName: state });
+    this.handleRefreshGroups()
     if (state) {
       this.handleCloseSettingsMenu()
     }
@@ -126,6 +130,7 @@ class Dashboard extends React.Component {
 
   handleOpenCloseAssignSensorToGroupDialog = (state) => {
     this.setState({ assignSensorToGroupDialog: state });
+    this.handleRefreshGroups()
     if (state) {
       this.handleCloseSettingsMenu()
     }
@@ -143,12 +148,19 @@ class Dashboard extends React.Component {
     console.log(this.state.selectedGroup)
     if (this.state.selectedGroup) {
       console.log(this.state.selectedGroup.sensors)
-      this.state.selectedGroup.sensors.forEach(element => {
+      if(this.state.selectedGroup.sensors.length > 0) {
+        this.state.selectedGroup.sensors.forEach(element => {
+          sensors.push(
+            <Grid item xs={6} key={element.id}>
+              <SensorChart value={element} />
+            </Grid>);
+        });
+      } else {
         sensors.push(
-          <Grid item xs={3}>
-            <SensorChart value={element} />
+          <Grid item xs key='1'>
+            <EmptyChart />
           </Grid>);
-      });
+      }
     }
 
     console.log(this.listItems);
@@ -202,6 +214,7 @@ class Dashboard extends React.Component {
         <CustomDrawer open={this.state.open}
           groups={this.state.groups}
           drawerClose={this.handleDrawerClose}
+          changeGroup={this.handleChangeGroup}
           openAddGroupDialog={event => this.handleClickOpenCloseGroupAddDialog(true)} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />

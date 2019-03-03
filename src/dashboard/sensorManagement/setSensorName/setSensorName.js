@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import FormControl from '@material-ui/core/FormControl';
 import Axios from '../../../axiosConfig/axiosInstance.js'
 import Select from '@material-ui/core/Select';
-import { ListItem, MenuItem } from '@material-ui/core';
+import { MenuItem } from '@material-ui/core';
 
 class SetSensorName extends Component {
     state = {
@@ -19,7 +19,6 @@ class SetSensorName extends Component {
 
     handleChange = event => {
         console.log(event.target)
-        // this.setState({  });
         this.state.sensors.forEach( sensor => {
             if(sensor.sensorId === event.target.value) {
                 
@@ -48,11 +47,13 @@ class SetSensorName extends Component {
         Axios.patch("http://localhost:8443/sensor/" + this.state.id + "/" + this.state.name, "")
             .catch((error) => {
                 console.log(error);
+                this.props.handleClose()
             }).then((result) => {
                 console.log(result)
                 this.getSensorData()
+                this.props.handleClose()
             })
-        this.props.handleClose()
+        
     }
 
     getSensorData() {
