@@ -89,8 +89,25 @@ class Dashboard extends React.Component {
       .then(response => {
         console.log('refreshGroups')
         console.log(response.data)
-        this.setState({ groups: response.data, selectedGroup: response.data[0] });
+        if(this.state.selectedGroup !== null) {
+          this.setState({ groups: response.data});
+          for(var i=0; i< response.data.length; i++ ) {
+            if(response.data[i].id == this.state.selectedGroup.id) {
+              this.setState({ groups: response.data, selectedGroup: response.data[i] });    
+            }
+          }
+        } else {
+          this.setState({ groups: response.data, selectedGroup: response.data[0] });
+        }
       });
+  }
+
+  handleRemoveFromGroup = (sensorId) => {
+    var url = '/group/' + this.state.selectedGroup.id + '/delete/' + sensorId;
+    console.log(url)
+    axios.delete(url)
+    .then(response => { this.handleRefreshGroups()})
+    .catch(error => {console.log(error)});
   }
 
   handleOpenSettingsMenu = event => {
@@ -152,7 +169,8 @@ class Dashboard extends React.Component {
         this.state.selectedGroup.sensors.forEach(element => {
           sensors.push(
             <Grid item xs={6} key={element.id}>
-              <SensorChart value={element} />
+              <SensorChart value={element} group={this.state.selectedGroup.id} 
+                removeFromGroupHandler={this.handleRemoveFromGroup}/>
             </Grid>);
         });
       } else {
