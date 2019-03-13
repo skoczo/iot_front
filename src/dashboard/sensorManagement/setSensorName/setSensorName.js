@@ -18,16 +18,12 @@ class SetSensorName extends Component {
     };
 
     handleChange = event => {
-        console.log(event.target)
         this.state.sensors.forEach( sensor => {
             if(sensor.sensorId === event.target.value) {
                 
                 if(sensor.name === null) {
-                    console.log('set sensor name undefined')
                     this.setState({ name: '', [event.target.name]: event.target.value});
                 } else {
-                    console.log('set sensor name defined')
-                    console.log(sensor)
                     this.setState({ name: sensor.name, [event.target.name]: event.target.value});
                 }
             }
@@ -35,7 +31,6 @@ class SetSensorName extends Component {
     };
 
     handleSensorNameEdit = event => {
-        console.log(event.target)
         this.setState({name: event.target.value})
     }
 
@@ -44,12 +39,11 @@ class SetSensorName extends Component {
     }
 
     setSensorName = () => {
-        Axios.patch("http://localhost:8443/sensor/" + this.state.id + "/" + this.state.name, "")
+        Axios.patch("sensor/" + this.state.id + "/" + this.state.name, "")
             .catch((error) => {
                 console.log(error);
                 this.props.handleClose()
             }).then((result) => {
-                console.log(result)
                 this.getSensorData()
                 this.props.handleClose()
             })
@@ -57,7 +51,7 @@ class SetSensorName extends Component {
     }
 
     getSensorData() {
-        Axios.get("http://localhost:8443/sensors")
+        Axios.get("/sensors")
             .then((result) => {
                 this.setState({ sensors: result.data });
             }).catch((error) => {
@@ -69,7 +63,7 @@ class SetSensorName extends Component {
         let items = []
 
         this.state.sensors.forEach( (sensor, index) => {
-            items.push(<MenuItem key={index} value={sensor.sensorId}>{sensor.sensorId}</MenuItem>);
+            items.push(<MenuItem key={index} value={sensor.sensorId}>{ sensor.name != null && sensor.name !== '' ? sensor.name : sensor.sensorId}</MenuItem>);
         })
 
         return (
@@ -77,7 +71,6 @@ class SetSensorName extends Component {
                 <Dialog
                     open={this.props.open}
                     aria-labelledby="form-dialog-title">
-                    {/* <DialogTitle id="form-dialog-title">Dodaj grupę</DialogTitle> */}
                     <DialogContent>
                         <DialogContentText>
                             Ustaw nazwę czujnika

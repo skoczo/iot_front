@@ -32,7 +32,7 @@ const styles = {
 
 const ITEM_HEIGHT = 48;
 
-class SensorChart extends Component {
+class SensorCard extends Component {
     state = {
         anchorEl: null,
         temp: 'N/A',
@@ -83,8 +83,6 @@ class SensorChart extends Component {
     render() {
         const { classes } = this.props;
         const { anchorEl } = this.state;
-
-        console.log(this.props)
 
         var nazwaCzujnika = this.props.value.name !== null && this.props.value.name !== '' ? this.props.value.name : this.props.value.sensorId;
 
@@ -153,4 +151,4 @@ class SensorChart extends Component {
     }
 }
 
-export default withStyles(styles)(SensorChart);
+export default withStyles(styles)(SensorCard);

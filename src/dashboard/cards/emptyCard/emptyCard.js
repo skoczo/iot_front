@@ -18,7 +18,7 @@ const styles = {
     }
 };
 
-class EmptyChart extends Component {
+class EmptyCard extends Component {
     render() {
         const { classes } = this.props;
 
@@ -35,4 +35,4 @@ class EmptyChart extends Component {
     }
 }
 
-export default withStyles(styles)(EmptyChart);
+export default withStyles(styles)(EmptyCard);

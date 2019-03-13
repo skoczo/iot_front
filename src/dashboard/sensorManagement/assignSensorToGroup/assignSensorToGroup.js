@@ -25,7 +25,7 @@ class AssignSensorToGroup extends Component {
     }
 
     getSensorData() {
-        Axios.get("http://localhost:8443/sensors")
+        Axios.get("sensors")
             .then((result) => {
                 this.setState({ sensors: result.data });
             }).catch((error) => {
@@ -34,7 +34,7 @@ class AssignSensorToGroup extends Component {
     }
 
     getGroupData() {
-        Axios.get("http://localhost:8443/groups")
+        Axios.get("groups")
             .then((result) => {
                 this.setState({ groups: result.data, groupId: result.data[0].id });
                 
@@ -45,10 +45,8 @@ class AssignSensorToGroup extends Component {
 
     assignSensorToGroup = () => {
         var url = '/group/' + this.state.groupId + "/add/" + this.state.sensorId;
-        console.log(url)
         Axios.post(url, '')
         .then((result) => {
-            console.log(result)
             this.props.handleClose()
         }).catch((error) => {
             console.log(error)
@@ -57,7 +55,6 @@ class AssignSensorToGroup extends Component {
     }
 
     handleChange = event => {
-        console.log(event)
         this.setState({[event.target.name]: event.target.value});
     };
 

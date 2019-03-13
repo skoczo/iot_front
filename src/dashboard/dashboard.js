@@ -16,9 +16,11 @@ import CustomDrawer from './drawer/customDrawer'
 import SetSensorNameDialog from './sensorManagement/setSensorName/setSensorName.js'
 import AssignSensorToGroup from './sensorManagement/assignSensorToGroup/assignSensorToGroup.js'
 import axios from '../axiosConfig/axiosInstance.js';
-import SensorChart from './charts/sensorChart/sensorChart.js'
-import EmptyChart from './charts/emptyChart/emptyChart.js'
+import SensorCard from './cards/sensorCard/sensorCard.js'
+import EmptyCard from './cards/emptyCard/emptyCard.js'
 import Grid from '@material-ui/core/Grid';
+import TemperaturesLineChart from './charts/temperaturesLineChart.js'
+import { Card } from '@material-ui/core';
 
 const drawerWidth = 240;
 
@@ -77,37 +79,38 @@ class Dashboard extends React.Component {
     assignSensorToGroupDialog: false,
     groups: [],
     anchorEl: null,
-    selectedGroup: null
+    selectedGroup: null,
+    temperatures: {}
   };
 
   componentDidMount() {
     this.handleRefreshGroups();
+    // this.readSensorsTemp(this.state.selectedGroup.sensors)
   }
 
   handleRefreshGroups() {
     axios.get('/groups')
       .then(response => {
-        console.log('refreshGroups')
-        console.log(response.data)
-        if(this.state.selectedGroup !== null) {
-          this.setState({ groups: response.data});
-          for(var i=0; i< response.data.length; i++ ) {
-            if(response.data[i].id == this.state.selectedGroup.id) {
-              this.setState({ groups: response.data, selectedGroup: response.data[i] });    
+        if (this.state.selectedGroup !== null) {
+          this.setState({ groups: response.data });
+          for (var i = 0; i < response.data.length; i++) {
+            if (response.data[i].id === this.state.selectedGroup.id) {
+              this.setState({ groups: response.data, selectedGroup: response.data[i] });
+              this.readSensorsTemp(response.data[i].sensors)
             }
           }
         } else {
           this.setState({ groups: response.data, selectedGroup: response.data[0] });
+          this.readSensorsTemp(response.data[0].sensors)
         }
       });
   }
 
   handleRemoveFromGroup = (sensorId) => {
     var url = '/group/' + this.state.selectedGroup.id + '/delete/' + sensorId;
-    console.log(url)
     axios.delete(url)
-    .then(response => { this.handleRefreshGroups()})
-    .catch(error => {console.log(error)});
+      .then(response => { this.handleRefreshGroups() })
+      .catch(error => { console.log(error) });
   }
 
   handleOpenSettingsMenu = event => {
@@ -127,11 +130,8 @@ class Dashboard extends React.Component {
   };
 
   handleChangeGroup = (groupId) => {
-    console.log(groupId)
-
     this.state.groups.forEach(group => {
-      if(group.id === groupId) {
-        console.log('group found')
+      if (group.id === groupId) {
         this.setState({ selectedGroup: group });
       }
     });
@@ -162,26 +162,27 @@ class Dashboard extends React.Component {
     const { anchorEl } = this.state;
 
     let sensors = []
-    console.log(this.state.selectedGroup)
-    if (this.state.selectedGroup) {
-      console.log(this.state.selectedGroup.sensors)
-      if(this.state.selectedGroup.sensors.length > 0) {
+    if (this.state.selectedGroup !== null) {
+      console.log('selected group set')
+      console.log(this.state.selectedGroup)
+      if (this.state.selectedGroup.sensors.length > 0) {
         this.state.selectedGroup.sensors.forEach(element => {
           sensors.push(
             <Grid item xs={6} key={element.id}>
-              <SensorChart value={element} group={this.state.selectedGroup.id} 
-                removeFromGroupHandler={this.handleRemoveFromGroup}/>
+              <SensorCard value={element} group={this.state.selectedGroup.id}
+                removeFromGroupHandler={this.handleRemoveFromGroup} />
             </Grid>);
         });
+        sensors.push(<Grid item xs key='1'>
+          <TemperaturesLineChart group={this.state.selectedGroup} />
+        </Grid>);
       } else {
         sensors.push(
           <Grid item xs key='1'>
-            <EmptyChart />
+            <EmptyCard />
           </Grid>);
       }
     }
-
-    console.log(this.listItems);
 
     return (
       <div className={classes.root}>

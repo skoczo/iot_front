@@ -14,15 +14,11 @@ class AddGroupDialog extends Component {
     };
 
     addGroup = () => {
-        console.log('addGroup: ' + this.state.group);
-
         Axios.post('/group/' + this.state.group)
             .catch( (error) => {
                 console.log(error);
             })
             .then((response) => {
-                console.log("group added")
-                console.log(response);
                 this.props.refreshGroups();  
             });
         this.setState({ group: ''});
