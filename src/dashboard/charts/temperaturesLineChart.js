@@ -1,83 +1,86 @@
 import React, { Component } from 'react';
-import ResponsiveContainer from 'recharts/lib/component/ResponsiveContainer';
-import LineChart from 'recharts/lib/chart/LineChart';
-import Line from 'recharts/lib/cartesian/Line';
-import XAxis from 'recharts/lib/cartesian/XAxis';
-import YAxis from 'recharts/lib/cartesian/YAxis';
-import CartesianGrid from 'recharts/lib/cartesian/CartesianGrid';
-import Tooltip from 'recharts/lib/component/Tooltip';
-import Legend from 'recharts/lib/component/Legend';
+import Axios from '../../axiosConfig/axiosInstance.js'
+import moment from 'moment'
+
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Axios from '../../axiosConfig/axiosInstance.js'
-
+import BillboardChart from "react-billboardjs";
+import "react-billboardjs/lib/billboard.css";
 
 class TemperaturesLineChart extends Component {
     state = {
-        data: []
+        temperatures: null
     }
 
     componentDidMount() {
         this.getTemperatures(this.props.group);
     }
 
-    getTemperatures = (group) => {
-        console.log(group)
-        if (group) {
-            group.sensors.forEach(sensor => {
-                let url = '/temperatures/' + sensor.sensorId + '/today'
-                console.log(url)
-                Axios.get(url)
-                    .then(result => {
-                        this.setState({ [sensor.sensorId]: result.data })
-                        console.log("today temps");
-                        console.log(result);
-                    })
-                    .catch(error => {
-                        console.log("Error when getting temp")
-                        console.log(error)
-                    });
-            });
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.group !== this.props.group) {
+            if (this.chartInstance !== null && this.chartInstance.chart !== null) {
+                this.getTemperatures(nextProps.group);
+            }
+        }
+    }
 
+    getRef = (ChartInstance) => {
+        this.chartInstance = ChartInstance;
+    };
+
+    getTemperatures = (group) => {
+        this.setState({ temperatures: null })
+        if (group) {
+            let sensors = group.sensors.map(sensor => sensor.sensorId)
+            let url = '/temperatures/today?sensorIds=' + sensors
+            Axios.get(url)
+                .then(response => {
+                    this.setState({ temperatures: response.data })
+                })
+                .catch(error => { console.log(error) })
         }
     }
 
     render() {
-        console.log('TemperaturesLineChart')
-        console.log(this.state)
+        if (this.state.temperatures !== null) {
+            var x = []
+            var y = []
+            var xs = {}
 
-        let chart;
+            var iterator = 1
+            this.state.temperatures.forEach(element => {
+                var timestamps = element.temperatures.map(entity => entity.timestamp)
+                timestamps.unshift('x' + iterator)
+                x.push(timestamps)
 
-        if (this.props.group.sensors[0].sensorId in this.state) {
-            let temps = this.state[this.props.group.sensors[0].sensorId];
-            console.log('temps')
-            console.log(temps)
+                var values = element.temperatures.map(entity => entity.value)
+                var dataName = element.sensor.name !== '' ? element.sensor.name : element.sensor.sensorId
+                values.unshift(dataName)
+                y.push(values)
 
-            console.log(temps[1])
+                xs[dataName] = 'x' + iterator
+                iterator++
+            });
 
-            chart = <LineChart data={temps}>
-                <XAxis dataKey="timestamp" />
-                <YAxis />
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="value" stroke="#82ca9d" />
-                {/* <Line type="monotone" dataKey="Orders" stroke="#8884d8" activeDot={{ r: 8 }} /> */}
-            </LineChart>
-        } else {
-            chart = <div>Waiting for data</div>;
-        }
+            var columns = []
+            x.forEach(element => columns.push(element))
+            y.forEach(element => columns.push(element))
 
-        return (
-            <Card>
-                <CardContent className="sensorCard">
-                    <ResponsiveContainer width="99%" height={320}>
-                        {chart}
-                    </ResponsiveContainer>
+            var d = {
+                xs: xs,
+                columns: columns
+            }
+
+            return <Card>
+                <CardContent>
+                    <BillboardChart
+                        data={d}
+                        ref={this.getRef} />
                 </CardContent>
-            </Card>
-        );
+            </Card>;
+        }
+        return <div>Waiting for data</div>;
     }
 }
 
-export default TemperaturesLineChart;
+export default TemperaturesLineChart;   
