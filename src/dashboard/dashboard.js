@@ -20,7 +20,6 @@ import SensorCard from './cards/sensorCard/sensorCard.js'
 import EmptyCard from './cards/emptyCard/emptyCard.js'
 import Grid from '@material-ui/core/Grid';
 import TemperaturesLineChart from './charts/temperaturesLineChart.js'
-import { Card } from '@material-ui/core';
 
 const drawerWidth = 240;
 
@@ -162,20 +161,19 @@ class Dashboard extends React.Component {
     const { anchorEl } = this.state;
 
     let sensors = []
+    let chart
     if (this.state.selectedGroup !== null) {
-      console.log('selected group set')
-      console.log(this.state.selectedGroup)
       if (this.state.selectedGroup.sensors.length > 0) {
         this.state.selectedGroup.sensors.forEach(element => {
           sensors.push(
-            <Grid item xs={6} key={element.id}>
+            <Grid item xs={3} key={element.id}>
               <SensorCard value={element} group={this.state.selectedGroup.id}
                 removeFromGroupHandler={this.handleRemoveFromGroup} />
             </Grid>);
         });
-        sensors.push(<Grid item xs key='1'>
+        chart = <Grid item xs key='1'>
           <TemperaturesLineChart group={this.state.selectedGroup} />
-        </Grid>);
+        </Grid>;
       } else {
         sensors.push(
           <Grid item xs key='1'>
@@ -240,7 +238,9 @@ class Dashboard extends React.Component {
           <Grid container spacing={24}>
             {sensors}
           </Grid>
-
+          <Grid container spacing={24}>
+            {chart}
+          </Grid>
           {/* <Typography variant="h4" gutterBottom component="h2">
             Orders
           </Typography>

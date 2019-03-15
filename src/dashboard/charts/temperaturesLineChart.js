@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import Axios from '../../axiosConfig/axiosInstance.js'
-import moment from 'moment'
-
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import BillboardChart from "react-billboardjs";
@@ -49,7 +47,8 @@ class TemperaturesLineChart extends Component {
 
             var iterator = 1
             this.state.temperatures.forEach(element => {
-                var timestamps = element.temperatures.map(entity => entity.timestamp)
+                var timestamps = element.temperatures.map(
+                    entity => new Date(entity.timestamp))
                 timestamps.unshift('x' + iterator)
                 x.push(timestamps)
 
@@ -74,12 +73,29 @@ class TemperaturesLineChart extends Component {
             return <Card>
                 <CardContent>
                     <BillboardChart
+                        unloadBeforeLoad
                         data={d}
-                        ref={this.getRef} />
+                        ref={this.getRef}
+                        axis={{x: {
+                                type: 'timeseries',
+                                tick: {
+                                    format: '%Y-%m-%d %H:%M:%S'
+                                }
+                            }}} />
                 </CardContent>
             </Card>;
         }
-        return <div>Waiting for data</div>;
+        return <Card>
+                    <CardContent>
+                        <BillboardChart data={{ xs: [[]], columns: [[]] }} 
+                                        axis={{x: {
+                                            type: 'timeseries',
+                                            tick: {
+                                                format: '%Y-%m-%d %H:%M:%S'
+                                            }
+                                        }}}/>
+                    </CardContent>
+                </Card>;
     }
 }
 
