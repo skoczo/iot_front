@@ -75,7 +75,7 @@ class SensorCard extends Component {
         this.setState({ openDialog: show });
         this.handleClose()
     }
- 
+
     isFloat = (n) => {
         return n === +n && n !== (n | 0);
     }
@@ -84,7 +84,7 @@ class SensorCard extends Component {
         const { classes } = this.props;
         const { anchorEl } = this.state;
 
-        var nazwaCzujnika = this.props.value.name !== null && this.props.value.name !== '' ? this.props.value.name : this.props.value.sensorId;
+        var sensorName = this.props.value.name !== null && this.props.value.name !== '' ? this.props.value.name : this.props.value.sensorId;
 
         var date;
         if (this.state.lastRefresh) {
@@ -116,37 +116,36 @@ class SensorCard extends Component {
                             anchorEl={anchorEl}
                             onClose={this.handleClose}>
                             <MenuItem
-                            onClick={event => this.showDialog(true)} 
+                                onClick={event => this.showDialog(true)}
                             >Usuń z grupy</MenuItem>
                         </Menu>
                     </div>
                 }
-                title={nazwaCzujnika}
+                title={sensorName}
             />
             <CardContent className="sensorCard">
                 <Typography className={classes.value} variant="h5" component="h2">{this.isFloat(this.state.temp) ? this.state.temp.toFixed(2) : this.state.temp} &#x2103;</Typography>
                 <Typography className={classes.time} color="textSecondary">{date}</Typography>
             </CardContent>
         </Card>
-        <Dialog
-          open={this.state.openDialog}
-          onClose={event => this.showDialog(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Usunąć z grupy?"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">Czy chcesz usunąć czujnik <b><i>{nazwaCzujnika}</i></b> z grupy?</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={event => this.showDialog(false)} color="primary">
-              Nie
-            </Button>
-            <Button onClick={event => this.props.removeFromGroupHandler(this.props.value.sensorId)} color="primary" autoFocus>
-              Tak
-            </Button>
-          </DialogActions>
-        </Dialog>
+            <Dialog
+                open={this.state.openDialog}
+                onClose={event => this.showDialog(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description">
+                <DialogTitle id="alert-dialog-title">{"Usunąć z grupy?"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">Czy chcesz usunąć czujnik <b><i>{sensorName}</i></b> z grupy?</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={event => this.showDialog(false)} color="primary">
+                        Nie
+                    </Button>
+                    <Button onClick={event => this.props.removeFromGroupHandler(this.props.value.sensorId)} color="primary" autoFocus>
+                        Tak
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>);
     }
 }

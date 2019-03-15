@@ -4,22 +4,18 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import SettingsIcon from '@material-ui/icons/Settings';
 import AddGroupDialog from './addGroupDialog/addGroupDialog.js'
 import CustomDrawer from './drawer/customDrawer'
-import SetSensorNameDialog from './sensorManagement/setSensorName/setSensorName.js'
-import AssignSensorToGroup from './sensorManagement/assignSensorToGroup/assignSensorToGroup.js'
 import axios from '../axiosConfig/axiosInstance.js';
 import SensorCard from './cards/sensorCard/sensorCard.js'
 import EmptyCard from './cards/emptyCard/emptyCard.js'
 import Grid from '@material-ui/core/Grid';
 import TemperaturesLineChart from './charts/temperaturesLineChart.js'
+import MainMenu from '../dashboard/mainMenu/mainMenu.js'
 
 const drawerWidth = 240;
 
@@ -77,7 +73,6 @@ class Dashboard extends React.Component {
     openGropAddDialog: false,
     assignSensorToGroupDialog: false,
     groups: [],
-    anchorEl: null,
     selectedGroup: null,
     temperatures: {}
   };
@@ -87,7 +82,7 @@ class Dashboard extends React.Component {
     // this.readSensorsTemp(this.state.selectedGroup.sensors)
   }
 
-  handleRefreshGroups() {
+  handleRefreshGroups = () => {
     axios.get('/groups')
       .then(response => {
         if (this.state.selectedGroup !== null) {
@@ -112,14 +107,6 @@ class Dashboard extends React.Component {
       .catch(error => { console.log(error) });
   }
 
-  handleOpenSettingsMenu = event => {
-    this.setState({ anchorEl: event.currentTarget });
-  };
-
-  handleCloseSettingsMenu = () => {
-    this.setState({ anchorEl: null });
-  };
-
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
@@ -136,29 +123,9 @@ class Dashboard extends React.Component {
     });
   }
 
-  handleOpenCloseSetSensorNameDialog = (state) => {
-    this.setState({ setSensorName: state });
-    this.handleRefreshGroups()
-    if (state) {
-      this.handleCloseSettingsMenu()
-    }
-  };
-
-  handleOpenCloseAssignSensorToGroupDialog = (state) => {
-    this.setState({ assignSensorToGroupDialog: state });
-    this.handleRefreshGroups()
-    if (state) {
-      this.handleCloseSettingsMenu()
-    }
-  }
-
-  handleClickOpenCloseGroupAddDialog = (state) => {
-    this.setState({ openGropAddDialog: state });
-  };
-
   render() {
     const { classes } = this.props;
-    const { anchorEl } = this.state;
+    
 
     let sensors = []
     let chart
@@ -206,26 +173,10 @@ class Dashboard extends React.Component {
               variant="h6"
               color="inherit"
               noWrap
-              className={classes.title}
-            >
+              className={classes.title}>
               IOT Skoczo
             </Typography>
-            {/* <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton> */}
-            <IconButton color="inherit" onClick={this.handleOpenSettingsMenu}>
-              <SettingsIcon />
-            </IconButton>
-            <Menu
-              id="simple-menu"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={this.handleCloseSettingsMenu}>
-              <MenuItem onClick={event => this.handleOpenCloseAssignSensorToGroupDialog(true)}>Przypisz czujnik do grupy</MenuItem>
-              <MenuItem onClick={event => this.handleOpenCloseSetSensorNameDialog(true)}>Ustaw nazwę czujnika</MenuItem>
-            </Menu>
+            <MainMenu refreshDashboard={event => this.handleRefreshGroups()} />
           </Toolbar>
         </AppBar>
         <CustomDrawer open={this.state.open}
@@ -241,29 +192,12 @@ class Dashboard extends React.Component {
           <Grid container spacing={24}>
             {chart}
           </Grid>
-          {/* <Typography variant="h4" gutterBottom component="h2">
-            Orders
-          </Typography>
-          <Typography component="div" className={classes.chartContainer}>
-            <SimpleLineChart />
-          </Typography>
-          <Typography variant="h4" gutterBottom component="h2">
-            Products
-          </Typography>
-          <div className={classes.tableContainer}>
-            <SimpleTable /> */}
-          {/* </div> */}
         </main>
         <AddGroupDialog
           open={this.state.openGropAddDialog}
           handleClose={event => this.handleClickOpenCloseGroupAddDialog(false)}
           refreshGroups={event => this.handleRefreshGroups()} />
-        <SetSensorNameDialog
-          open={this.state.setSensorName}
-          handleClose={event => this.handleOpenCloseSetSensorNameDialog(false)} />
-        <AssignSensorToGroup
-          open={this.state.assignSensorToGroupDialog}
-          handleClose={event => this.handleOpenCloseAssignSensorToGroupDialog(false)} />
+        
       </div>
     );
   }

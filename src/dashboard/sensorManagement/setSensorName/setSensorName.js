@@ -19,8 +19,7 @@ class SetSensorName extends Component {
 
     handleChange = event => {
         this.state.sensors.forEach( sensor => {
-            if(sensor.sensorId === event.target.value) {
-                
+            if(sensor.sensorId === event.target.value) {    
                 if(sensor.name === null) {
                     this.setState({ name: '', [event.target.name]: event.target.value});
                 } else {
@@ -43,9 +42,11 @@ class SetSensorName extends Component {
             .catch((error) => {
                 console.log(error);
                 this.props.handleClose()
+                this.props.refreshDashboard();
             }).then((result) => {
                 this.getSensorData()
                 this.props.handleClose()
+                this.props.refreshDashboard();
             })
         
     }

@@ -48,9 +48,11 @@ class AssignSensorToGroup extends Component {
         Axios.post(url, '')
         .then((result) => {
             this.props.handleClose()
+            this.props.refreshDashboard();
         }).catch((error) => {
             console.log(error)
             this.props.handleClose()
+            this.props.refreshDashboard();
         })
     }
 

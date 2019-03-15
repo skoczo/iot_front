@@ -11,7 +11,8 @@ class TemperaturesLineChart extends Component {
     }
 
     componentDidMount() {
-        this.getTemperatures(this.props.group);
+        this.getTemperatures(this.props.group)
+        this.timer = setInterval(event => this.getTemperatures(this.props.group), 1000 * 60 * 5)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -31,7 +32,7 @@ class TemperaturesLineChart extends Component {
         if (group) {
             let sensors = group.sensors.map(sensor => sensor.sensorId)
             let url = '/temperatures/today?sensorIds=' + sensors
-            Axios.get(url)
+            Axios.get(url, {timeout: 10000})
                 .then(response => {
                     this.setState({ temperatures: response.data })
                 })
@@ -51,6 +52,8 @@ class TemperaturesLineChart extends Component {
                     entity => new Date(entity.timestamp))
                 timestamps.unshift('x' + iterator)
                 x.push(timestamps)
+
+                console.log(timestamps)
 
                 var values = element.temperatures.map(entity => entity.value)
                 var dataName = element.sensor.name !== '' ? element.sensor.name : element.sensor.sensorId
@@ -79,7 +82,7 @@ class TemperaturesLineChart extends Component {
                         axis={{x: {
                                 type: 'timeseries',
                                 tick: {
-                                    format: '%Y-%m-%d %H:%M:%S'
+                                    format: '%d/%m/%y %H:%M:%S'
                                 }
                             }}} />
                 </CardContent>
@@ -87,11 +90,11 @@ class TemperaturesLineChart extends Component {
         }
         return <Card>
                     <CardContent>
-                        <BillboardChart data={{ xs: [[]], columns: [[]] }} 
+                        <BillboardChart data={{ xs: {}, columns: [[]] }} 
                                         axis={{x: {
                                             type: 'timeseries',
                                             tick: {
-                                                format: '%Y-%m-%d %H:%M:%S'
+                                                format: '%d/%m/%y %H:%M:%S'
                                             }
                                         }}}/>
                     </CardContent>
