@@ -4,8 +4,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
@@ -51,18 +49,26 @@ class LoginPage extends Component {
 
     state = {
         login: '',
-        password: ''
+        password: '',
+        error: false
     };
 
     login = (event) => {
         event.preventDefault();
-        Axios.post('public/users/login', 
-            'username=' + this.state.login + 
-            '&password=' + this.state.password)
+        console.log("sending login data")
+        var bodyFormData = new FormData();
+        bodyFormData.set('username', this.state.login);
+        bodyFormData.set('password', this.state.password);
+        Axios.post( 'public/users/login', 
+            bodyFormData,
+            { headers: {'Content-Type': 'multipart/form-data' }})
         .then((response) => {
                 console.log(response);
+                this.setState({password: '', error: false})
+                this.props.loginHook(response.data);
             })
         .catch((error) => {
+            this.setState({password: '', error: true})
             console.error("Error during login. " + error)
         });
     }
@@ -97,7 +103,7 @@ class LoginPage extends Component {
                         </FormControl>
                         <FormControl margin="normal" required fullWidth>
                             <InputLabel htmlFor="password">Hasło</InputLabel>
-                            <Input name="password" type="password" id="password"
+                            <Input error={this.state.error} name="password" type="password" id="password"
                                 autoComplete="current-password"
                                 value={this.state.password}
                                 onChange={this.handlePasswordEdit} />
@@ -105,7 +111,8 @@ class LoginPage extends Component {
                         {/* <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
-          /> */}
+          />  */}
+          {/* <FormControlLabel control={this.state.error} label=""/> */}
                         <Button
                             type="submit"
                             fullWidth

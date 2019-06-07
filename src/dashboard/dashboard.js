@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import AddGroupDialog from './addGroupDialog/addGroupDialog.js'
 import CustomDrawer from './drawer/customDrawer'
-import axios from '../axiosConfig/axiosInstance.js';
+import axios, {GetAuthHeader} from '../axiosConfig/axiosInstance.js';
 import SensorCard from './cards/sensorCard/sensorCard.js'
 import EmptyCard from './cards/emptyCard/emptyCard.js'
 import Grid from '@material-ui/core/Grid';
@@ -74,7 +74,8 @@ class Dashboard extends React.Component {
     assignSensorToGroupDialog: false,
     groups: [],
     selectedGroup: null,
-    temperatures: {}
+    temperatures: {},
+    error: null
   };
 
   componentDidMount() {
@@ -83,7 +84,7 @@ class Dashboard extends React.Component {
   }
 
   handleRefreshGroups = () => {
-    axios.get('/groups')
+    axios.get('/groups', { headers: GetAuthHeader()})
       .then(response => {
         if (this.state.selectedGroup !== null) {
           this.setState({ groups: response.data });
@@ -97,12 +98,14 @@ class Dashboard extends React.Component {
           this.setState({ groups: response.data, selectedGroup: response.data[0] });
           this.readSensorsTemp(response.data[0].sensors)
         }
+      }).catch(error => {
+        this.setState({ error: error })
       });
   }
 
   handleRemoveFromGroup = (sensorId) => {
     var url = '/group/' + this.state.selectedGroup.id + '/delete/' + sensorId;
-    axios.delete(url)
+    axios.delete(url, {headers: GetAuthHeader() })
       .then(response => { this.handleRefreshGroups() })
       .catch(error => { console.log(error) });
   }

@@ -6,7 +6,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText'
 import FormControl from '@material-ui/core/FormControl';
-import Axios from '../../axiosConfig/axiosInstance.js'
+import Axios, {GetAuthHeader} from '../../axiosConfig/axiosInstance.js'
 
 class AddGroupDialog extends Component {
     state = {
@@ -14,7 +14,7 @@ class AddGroupDialog extends Component {
     };
 
     addGroup = () => {
-        Axios.post('/group/' + this.state.group)
+        Axios.post('/group/' + this.state.group, {headers: GetAuthHeader() })
             .catch( (error) => {
                 console.log(error);
             })

@@ -6,7 +6,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText'
 import FormControl from '@material-ui/core/FormControl';
-import Axios from '../../../axiosConfig/axiosInstance.js'
+import Axios, {GetAuthHeader }from '../../../axiosConfig/axiosInstance.js'
 import Select from '@material-ui/core/Select';
 import { MenuItem } from '@material-ui/core';
 
@@ -38,7 +38,7 @@ class SetSensorName extends Component {
     }
 
     setSensorName = () => {
-        Axios.patch("sensor/" + this.state.id + "/" + this.state.name, "")
+        Axios.patch("sensor/" + this.state.id + "/" + this.state.name, "", { headers: GetAuthHeader()})
             .catch((error) => {
                 console.log(error);
                 this.props.handleClose()
@@ -52,11 +52,12 @@ class SetSensorName extends Component {
     }
 
     getSensorData() {
-        Axios.get("/sensors")
+        Axios.get("/sensors", { headers: GetAuthHeader()})
             .then((result) => {
+                console.log(result)
                 this.setState({ sensors: result.data });
             }).catch((error) => {
-                console.log(error);
+                console.log(error)
             });
     }
 

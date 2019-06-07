@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Axios from '../../axiosConfig/axiosInstance.js'
+import Axios, {GetAuthHeader} from '../../axiosConfig/axiosInstance.js'
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import BillboardChart from "react-billboardjs";
@@ -32,7 +32,7 @@ class TemperaturesLineChart extends Component {
         if (group) {
             let sensors = group.sensors.map(sensor => sensor.sensorId)
             let url = '/temperatures/today?sensorIds=' + sensors
-            Axios.get(url, {timeout: 10000})
+            Axios.get(url, {timeout: 10000}, { headers: GetAuthHeader()})
                 .then(response => {
                     this.setState({ temperatures: response.data })
                 })

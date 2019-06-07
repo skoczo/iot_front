@@ -5,7 +5,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle'
 import FormControl from '@material-ui/core/FormControl';
-import Axios from '../../../axiosConfig/axiosInstance.js'
+import Axios, {GetAuthHeader}from '../../../axiosConfig/axiosInstance.js'
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel'
 import { ListItem, MenuItem, List } from '@material-ui/core';
@@ -25,8 +25,9 @@ class AssignSensorToGroup extends Component {
     }
 
     getSensorData() {
-        Axios.get("sensors")
+        Axios.get("sensors", { headers: GetAuthHeader()})
             .then((result) => {
+                console.log(result)
                 this.setState({ sensors: result.data });
             }).catch((error) => {
                 console.log(error);
@@ -34,10 +35,9 @@ class AssignSensorToGroup extends Component {
     }
 
     getGroupData() {
-        Axios.get("groups")
+        Axios.get("groups", { headers: GetAuthHeader()})
             .then((result) => {
                 this.setState({ groups: result.data, groupId: result.data[0].id });
-                
             }).catch((error) => {
                 console.log(error);
             });
@@ -45,7 +45,7 @@ class AssignSensorToGroup extends Component {
 
     assignSensorToGroup = () => {
         var url = '/group/' + this.state.groupId + "/add/" + this.state.sensorId;
-        Axios.post(url, '')
+        Axios.post(url, '', { headers: GetAuthHeader()})
         .then((result) => {
             this.props.handleClose()
             this.props.refreshDashboard();

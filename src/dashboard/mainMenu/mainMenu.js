@@ -14,6 +14,10 @@ class MainMenu extends Component {
         openGropAddDialog: false
     }
 
+    componentDidCatch(error, info) {
+        console.log(error)
+    }
+
     handleOpenSettingsMenu = event => {
         this.setState({ anchorEl: event.currentTarget });
     };
