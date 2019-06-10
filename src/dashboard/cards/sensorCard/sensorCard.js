@@ -62,7 +62,7 @@ class SensorCard extends Component {
     }
 
     refreshTemp() {
-        Axios.get('/temperatures/sensor/' + this.props.value.sensorId + '/current', { headers: GetAuthHeader()})
+        Axios.get('/data/temperatures/sensor/' + this.props.value.sensorId + '/current', { headers: GetAuthHeader()})
             .then(response => {
                 this.setState({ temp: response.data.value, lastRefresh: response.data.timestamp })
             })

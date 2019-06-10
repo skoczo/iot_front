@@ -8,12 +8,12 @@ export function GetAuthHeader() {
   console.log(Cookies.get(tokenName))
   if(typeof Cookies.get(tokenName) !== 'undefined' ) {
     console.log('token set')
-    return {'Authorization': "bearer " + Cookies.get(tokenName)};
+    return {'Authorization': "Bearer " + Cookies.get(tokenName)};
   }
   console.log('token not set')
   return {};
 }
-
+// baseURL: 'https://iot.skoczo.pl/',
 const instance = axios.create({
     baseURL: 'http://localhost:8443/',
     timeout: 1000,

@@ -73,6 +73,7 @@ class Dashboard extends React.Component {
     openGropAddDialog: false,
     assignSensorToGroupDialog: false,
     groups: [],
+    anchorEl: null,
     selectedGroup: null,
     temperatures: {},
     error: null
@@ -86,17 +87,19 @@ class Dashboard extends React.Component {
   handleRefreshGroups = () => {
     axios.get('/groups', { headers: GetAuthHeader()})
       .then(response => {
-        if (this.state.selectedGroup !== null) {
-          this.setState({ groups: response.data });
-          for (var i = 0; i < response.data.length; i++) {
-            if (response.data[i].id === this.state.selectedGroup.id) {
-              this.setState({ groups: response.data, selectedGroup: response.data[i] });
-              this.readSensorsTemp(response.data[i].sensors)
+        if(response.data.length > 0) {
+          if (this.state.selectedGroup !== null) {
+            this.setState({ groups: response.data });
+            for (var i = 0; i < response.data.length; i++) {
+              if (response.data[i].id === this.state.selectedGroup.id) {
+                this.setState({ groups: response.data, selectedGroup: response.data[i] });
+                this.readSensorsTemp(response.data[i].sensors)
+              }
             }
+          } else {
+            this.setState({ groups: response.data, selectedGroup: response.data[0] });
+            this.readSensorsTemp(response.data[0].sensors)
           }
-        } else {
-          this.setState({ groups: response.data, selectedGroup: response.data[0] });
-          this.readSensorsTemp(response.data[0].sensors)
         }
       }).catch(error => {
         this.setState({ error: error })
@@ -125,14 +128,43 @@ class Dashboard extends React.Component {
       }
     });
   }
+  handleOpenSettingsMenu = event => {
+      this.setState({ anchorEl: event.currentTarget });
+    };
+  
+    handleCloseSettingsMenu = () => {
+      this.setState({ anchorEl: null });
+    };
+  
+  handleOpenCloseSetSensorNameDialog = (state) => {
+      this.setState({ setSensorName: state });
+      this.handleRefreshGroups()
+      if (state) {
+        this.handleCloseSettingsMenu()
+      }
+    };
+  
+    handleOpenCloseAssignSensorToGroupDialog = (state) => {
+      this.setState({ assignSensorToGroupDialog: state });
+      this.handleRefreshGroups()
+      if (state) {
+        this.handleCloseSettingsMenu()
+      }
+    }
+  
+    handleClickOpenCloseGroupAddDialog = (state) => {
+      this.setState({ openGropAddDialog: state });
+    };
+  
 
   render() {
-    const { classes } = this.props;
-    
+    const { classes } = this.props;    
 
     let sensors = []
     let chart
-    if (this.state.selectedGroup !== null) {
+    console.log(this.state.selectedGroup)
+    if (this.state.selectedGroup !== null)  {
+      console.log(this.state.selectedGroup)
       if (this.state.selectedGroup.sensors.length > 0) {
         this.state.selectedGroup.sensors.forEach(element => {
           sensors.push(

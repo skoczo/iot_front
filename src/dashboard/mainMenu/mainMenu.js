@@ -5,6 +5,7 @@ import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import SettingsIcon from '@material-ui/icons/Settings';
 import IconButton from '@material-ui/core/IconButton';
+import Cookies from "js-cookie";
 
 class MainMenu extends Component {
     state = {
@@ -44,6 +45,11 @@ class MainMenu extends Component {
         this.setState({ openGropAddDialog: state });
     };
 
+    logout = () => {
+      Cookies.remove('auth-token')
+      window.location.reload();
+    }
+
     render() {
         const { anchorEl } = this.state;
 
@@ -58,6 +64,7 @@ class MainMenu extends Component {
                 onClose={this.handleCloseSettingsMenu}>
                 <MenuItem onClick={event => this.handleOpenCloseAssignSensorToGroupDialog(true)}>Przypisz czujnik do grupy</MenuItem>
                 <MenuItem onClick={event => this.handleOpenCloseSetSensorNameDialog(true)}>Ustaw nazwę czujnika</MenuItem>
+                <MenuItem onClick={event => this.logout()}>Wyloguj</MenuItem>
             </Menu>
             <SetSensorNameDialog
                 open={this.state.setSensorName}

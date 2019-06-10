@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Axios, {GetAuthHeader} from '../../axiosConfig/axiosInstance.js'
+import axios, {GetAuthHeader} from '../../axiosConfig/axiosInstance.js'
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import BillboardChart from "react-billboardjs";
@@ -31,8 +31,10 @@ class TemperaturesLineChart extends Component {
         this.setState({ temperatures: null })
         if (group) {
             let sensors = group.sensors.map(sensor => sensor.sensorId)
-            let url = '/temperatures/today?sensorIds=' + sensors
-            Axios.get(url, {timeout: 10000}, { headers: GetAuthHeader()})
+            let url = '/data/temperatures/today?sensorIds=' + sensors
+            console.log('GetAuthHeader()')
+            console.log(GetAuthHeader())
+            axios.get(url, {timeout: 10000, headers: GetAuthHeader()})
                 .then(response => {
                     this.setState({ temperatures: response.data })
                 })
@@ -56,7 +58,9 @@ class TemperaturesLineChart extends Component {
                 console.log(timestamps)
 
                 var values = element.temperatures.map(entity => entity.value)
-                var dataName = element.sensor.name !== '' ? element.sensor.name : element.sensor.sensorId
+                console.log(element.sensor.name)
+                var dataName = (element.sensor.name !== 'undefined' && element.sensor.name !== null) 
+                    ? element.sensor.name : element.sensor.sensorId
                 values.unshift(dataName)
                 y.push(values)
 

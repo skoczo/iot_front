@@ -14,7 +14,7 @@ class AddGroupDialog extends Component {
     };
 
     addGroup = () => {
-        Axios.post('/group/' + this.state.group, {headers: GetAuthHeader() })
+        Axios.post('/group/' + this.state.group, '',  {headers: GetAuthHeader() })
             .catch( (error) => {
                 console.log(error);
             })

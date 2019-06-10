@@ -37,7 +37,9 @@ class AssignSensorToGroup extends Component {
     getGroupData() {
         Axios.get("groups", { headers: GetAuthHeader()})
             .then((result) => {
-                this.setState({ groups: result.data, groupId: result.data[0].id });
+                if(result.data !== null && result.data.length > 0) {
+                    this.setState({ groups: result.data, groupId: result.data[0].id });
+                } 
             }).catch((error) => {
                 console.log(error);
             });
